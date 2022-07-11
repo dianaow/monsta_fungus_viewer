@@ -5,7 +5,7 @@
       <div class='btnGroup'>
         <p class='btnLabel'>BACKGROUND</p>
         <button
-          v-for="(item, index) in colors"
+          v-for="(item, index) in bgcolors"
           type="button"
           :class="[
             'btn-graph',
@@ -172,14 +172,14 @@ export default {
   ],
   data() {
     return {
+      bgcolors : ['All', '#000000', '#F9AD6E', '#EE6D67', '#F74633', '#F4454F', '#3158D1', '#269574', '#2A7CA1', '#D2C4C2', '#ffffff', '#F8A621'],
       colors : ['All', '#F9AD6E', '#EE6D67', '#F74633', '#F4454F', '#3158D1', '#269574', '#2A7CA1', '#D2C4C2', '#ffffff', '#F8A621'],
       shapeType: ['All', 'all_circles', 'all_hexagons', 'petal1', 'petal3', 'circles_squares', 'hexagons_circles'],
       extraStyleType: ['All', 'gradient path', 'nested node color 2', 'node color 2'],
       fillType: ['All', 'all_filled', 'mixed', 'all_transparent'],
       connectionType: ['All', 'barabasi_albert', 'low1', 'low2'],
       levels: ["All", 3, 4, 5, 6, 7, 8],
-      //sortCategories: ['Seed Number', 'Background', 'Color', 'Shape'],
-      sortCategories: ['id', 'background color', 'element color', 'shapeType'],
+      sortCategories: ['id', 'background color', 'element color', 'shapeType', 'votes'],
       selectedSubject: {'background color': "All", 'element color': "All", 'link color': "All", 'shapeType': "All", 'levels': "All", "fillType": "All", "connectedness": "All", "extra style": "All"},
       selectedSort: 'id',
       zoomLevel: 1

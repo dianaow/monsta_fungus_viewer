@@ -1,5 +1,5 @@
 <template>
-  <h3 style="text-align:center; margin-bottom: 0px;">MONSTA FUNGUS</h3>
+  <h2 style="text-align:center; margin-bottom: 0px;">MONSTA FUNGUS</h2>
   <control-panel
     :animating="animating"
     @select-subject="handleSubjSelect"
@@ -40,7 +40,7 @@ export default {
       animating: false,
       timeout: false,
       isRendered: false, // flag to check if pixijs elements have all been rendered and visible on screen,
-      colors : ['All', '#F9AD6E', '#EE6D67', '#F74633', '#F4454F', '#3158D1', '#269574', '#2A7CA1', '#D2C4C2', '#ffffff', '#F8A621'],
+      bgcolors : ['All', '#000000', '#F9AD6E', '#EE6D67', '#F74633', '#F4454F', '#3158D1', '#269574', '#2A7CA1', '#D2C4C2', '#ffffff', '#F8A621'],
       shapeType: ['All', 'all_circles', 'all_hexagons', 'petal1', 'petal3', 'circles_squares', 'hexagons_circles'],
     };
   },
@@ -53,6 +53,7 @@ export default {
     isDataReady() {
     this.nodes = this.getElementPositions(this.data);
     this.renderElements()
+    this.getVotes()
     }
   },
   methods: {
@@ -62,6 +63,14 @@ export default {
       .map((d) => {
         return d;
       });
+    },
+    async getVotes() {
+      let response = await fetch(`/api/votes`)
+      let votesData = await response.json()
+      this.nodes.forEach(d=>{
+        let votes = votesData.filter(el=>el.seed === d.id.toString())
+        d.votes = votes.length || 0
+      })
     },
     fetchData() {
       this.dataFetched = true;
@@ -96,6 +105,18 @@ export default {
     handleImgClick(id) {
       if(this.animating) return
       window.open("https://florafungus.s3.ap-southeast-1.amazonaws.com/_FUNGUS-final-" + id + ".jpg");
+    },
+    async handleImgDblClick(id, sprite) {
+      if(this.animating) return
+      sprite.alpha = 0.5
+      await fetch('/api/add_vote', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({timestamp: new Date(), timezone: new Date().getTimezoneOffset(), seed: id})
+      });
     },
     getElementPositions(data) {
       let padding = 0
@@ -228,20 +249,20 @@ export default {
           return that.debugMode ? null : that.loadTextures() 
       })
       .then(async function(textures){
-        console.log('creating sprites', textures)
+        //console.log('creating sprites', textures)
         that.nodes.forEach((nodeData) => {
           let texture = textures ? textures.get(nodeData.id.toString()) : PIXI.Texture.WHITE
           const sprite = that.makeSprite(texture, nodeData);
-          sprite.on('click', () => that.handleImgClick(nodeData.id.toString())); 
+          sprite.on('rightdown', () => that.handleImgClick(nodeData.id.toString())); 
+          sprite.on('click', () => that.handleImgDblClick(nodeData.id.toString(), sprite)); 
           that.imagesLayer.addChild(sprite)
         })
       })
       .then(function(){
-        console.log('rendered sprites')
+        //console.log('rendered sprites')
         app.renderer.on('postrender', function(){
           if(that.isRendered) return //postrender function runs infinitely, add this flag to only run it once 
           that.isRendered = true // all pixijs elements have been rendered and are visible on screen
-          console.log(that.isRendered)
         })
       })
       .catch(err => { console.log(err) });  
@@ -277,21 +298,26 @@ export default {
       for (const item in this.selectedSubject) {
         filteredNodes = this.selectedSubject[item] === 'All' ? filteredNodes : filteredNodes.filter(d=>d[item] === this.selectedSubject[item])
       }
-
-      if(this.selectedSort === 'id'){
+    
+      if(this.selectedSort === 'votes'){
+        filteredNodes = filteredNodes.filter(d=>d.votes > 0)
+        filteredNodes.sort((a,b)=>{
+          return b[this.selectedSort]-a[this.selectedSort]
+        })
+      } else if(this.selectedSort === 'id'){
         filteredNodes.sort((a,b)=>{
           return a[this.selectedSort]-b[this.selectedSort]
         })
       } else {
-          if(this.selectedSort === 'background color' || this.selectedSort === 'element color'){
-            filteredNodes.sort((a,b)=>{
-              return this.colors.indexOf(a[this.selectedSort])-this.colors.indexOf(b[this.selectedSort])
-            })        
-          } else if(this.selectedSort === 'shapeType') {
-            filteredNodes.sort((a,b)=>{
-              return this.shapeType.indexOf(a[this.selectedSort])-this.shapeType.indexOf(b[this.selectedSort])
-            })               
-          }
+        if(this.selectedSort === 'background color' || this.selectedSort === 'element color'){
+          filteredNodes.sort((a,b)=>{
+            return this.bgcolors.indexOf(a[this.selectedSort])-this.bgcolors.indexOf(b[this.selectedSort])
+          })        
+        } else if(this.selectedSort === 'shape') {
+          filteredNodes.sort((a,b)=>{
+            return this.shapeType.indexOf(a['shapeType'])-this.shapeType.indexOf(b['shapeType'])
+          })               
+        }
       }
   
       const prevSimulatedFilteredNodes = this.simulatedFilteredNodes || []
