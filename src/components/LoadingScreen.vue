@@ -4,7 +4,7 @@
     id='Loading' 
     v-if="!isRendered"
   >
-    <h1 style="font-size: 48px; margin-top: 24px; margin-bottom: 36px">Loading images...</h1>
+    <h2 style="margin-top: 60px; margin-bottom: 30px; color: #F4454F;">Loading images</h2>
     <div>
     <img
       :src="imageURL1"

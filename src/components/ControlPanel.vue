@@ -5,12 +5,13 @@
       <div class='btnGroup'>
         <p class='btnLabel'>BACKGROUND</p>
         <button
-          v-for="(item, index) in bgcolors"
+          v-for="(item, index) in colors"
           type="button"
           :class="[
             'btn-graph',
             selectedSubject['background color'] === item ? 'btn-graph-selected' : null
           ]"
+          :style="{'background-color':item}"
           @click="setSelectedSubject('background color', item)"
           :key="index"
         >
@@ -26,6 +27,7 @@
             'btn-graph',
             selectedSubject['element color'] === item ? 'btn-graph-selected' : null
           ]"
+          :style="{'background-color':item}"
           @click="setSelectedSubject('element color', item)"
           :key="index"
         >
@@ -41,6 +43,7 @@
             'btn-graph',
             selectedSubject['link color'] === item ? 'btn-graph-selected' : null
           ]"
+          :style="{'background-color':item}"
           @click="setSelectedSubject('link color', item)"
           :key="index"
         >
@@ -158,9 +161,14 @@
         >
           <img src="@/assets/zoom-out.png" alt="zoomout" />
         </button>
-        <p class='label' style='font-size: 12px; padding-top: 10px;'>Click on each image to see it in full size</p>
       </div>
     </div>
+  </div>
+  <div>
+  <div>
+    <p class='label-other'>Vote for your favourite images by clicking on them! View public vote results by clicking on sort by 'votes' button.</p>
+    <p class='label-other'>Right click on each image to open URL with image in full size</p>
+  </div>
   </div>
 </template>
 
@@ -172,7 +180,6 @@ export default {
   ],
   data() {
     return {
-      bgcolors : ['All', '#000000', '#F9AD6E', '#EE6D67', '#F74633', '#F4454F', '#3158D1', '#269574', '#2A7CA1', '#D2C4C2', '#ffffff', '#F8A621'],
       colors : ['All', '#F9AD6E', '#EE6D67', '#F74633', '#F4454F', '#3158D1', '#269574', '#2A7CA1', '#D2C4C2', '#ffffff', '#F8A621'],
       shapeType: ['All', 'all_circles', 'all_hexagons', 'petal1', 'petal3', 'circles_squares', 'hexagons_circles'],
       extraStyleType: ['All', 'gradient path', 'nested node color 2', 'node color 2'],
@@ -214,7 +221,6 @@ export default {
 
 .toolbar {
   display: flex;
-  padding: 4px;
 }
 
 .panel {
@@ -238,6 +244,14 @@ export default {
   font-weight: bold; 
   padding-left: 4px;
   margin: 0px
+}
+
+.label-other {
+  font-size: 11px; 
+  font-weight: bold; 
+  text-align: center;
+  padding: 0px;
+  margin: 4px
 }
 
 .btnGroup {

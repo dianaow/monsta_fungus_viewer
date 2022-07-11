@@ -1,5 +1,5 @@
 <template>
-  <h2 style="text-align:center; margin-bottom: 0px;">MONSTA FUNGUS</h2>
+  <h1 style="text-align:center; margin-bottom: 0px; letter-spacing: .2rem;">MONSTA FUNGUS</h1>
   <control-panel
     :animating="animating"
     @select-subject="handleSubjSelect"
@@ -40,7 +40,7 @@ export default {
       animating: false,
       timeout: false,
       isRendered: false, // flag to check if pixijs elements have all been rendered and visible on screen,
-      bgcolors : ['All', '#000000', '#F9AD6E', '#EE6D67', '#F74633', '#F4454F', '#3158D1', '#269574', '#2A7CA1', '#D2C4C2', '#ffffff', '#F8A621'],
+      colors : ['All', '#F9AD6E', '#EE6D67', '#F74633', '#F4454F', '#3158D1', '#269574', '#2A7CA1', '#D2C4C2', '#ffffff', '#F8A621'],
       shapeType: ['All', 'all_circles', 'all_hexagons', 'petal1', 'petal3', 'circles_squares', 'hexagons_circles'],
     };
   },
@@ -59,13 +59,13 @@ export default {
   methods: {
     setupData(response) {
       this.data = response
-      //.slice(0,100)
+      .slice(1)
       .map((d) => {
         return d;
       });
     },
     async getVotes() {
-      let response = await fetch(`/api/votes`)
+      let response = await fetch(`http://localhost:3000/api/votes`)
       let votesData = await response.json()
       this.nodes.forEach(d=>{
         let votes = votesData.filter(el=>el.seed === d.id.toString())
@@ -109,7 +109,7 @@ export default {
     async handleImgDblClick(id, sprite) {
       if(this.animating) return
       sprite.alpha = 0.5
-      await fetch('/api/add_vote', {
+      await fetch('http://localhost:3000/api/add_vote', {
         method: 'POST',
         headers: {
           'Accept': 'application/json',
@@ -311,7 +311,7 @@ export default {
       } else {
         if(this.selectedSort === 'background color' || this.selectedSort === 'element color'){
           filteredNodes.sort((a,b)=>{
-            return this.bgcolors.indexOf(a[this.selectedSort])-this.bgcolors.indexOf(b[this.selectedSort])
+            return this.colors.indexOf(a[this.selectedSort])-this.colors.indexOf(b[this.selectedSort])
           })        
         } else if(this.selectedSort === 'shape') {
           filteredNodes.sort((a,b)=>{
