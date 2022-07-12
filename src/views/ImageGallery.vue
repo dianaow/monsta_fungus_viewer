@@ -53,7 +53,6 @@ export default {
     isDataReady() {
     this.nodes = this.getElementPositions(this.data);
     this.renderElements()
-    this.getVotes()
     }
   },
   methods: {
@@ -64,10 +63,10 @@ export default {
         return d;
       });
     },
-    async getVotes() {
-      let response = await fetch(`http://localhost:3000/api/votes`)
+    async getVotes(nodes) {
+      let response = await fetch(`/api/votes`)
       let votesData = await response.json()
-      this.nodes.forEach(d=>{
+      nodes.forEach(d=>{
         let votes = votesData.filter(el=>el.seed === d.id.toString())
         d.votes = votes.length || 0
       })
@@ -104,12 +103,13 @@ export default {
     },
     handleImgClick(id) {
       if(this.animating) return
-      window.open("https://florafungus.s3.ap-southeast-1.amazonaws.com/_FUNGUS-final-" + id + ".jpg");
+      let sprite = this.spritesArr.find(d=>d.name.includes(id))
+      window.open("https://florafungus.s3.ap-southeast-1.amazonaws.com/" + sprite.name + ".jpg");
     },
     async handleImgDblClick(id, sprite) {
       if(this.animating) return
       sprite.alpha = 0.5
-      await fetch('http://localhost:3000/api/add_vote', {
+      await fetch('/api/add_vote', {
         method: 'POST',
         headers: {
           'Accept': 'application/json',
@@ -152,6 +152,7 @@ export default {
       return new PIXI.Texture(texture, frame, orig, false, false);
     },
     async loadTextures() {
+      this.spritesArr = []
       const textures = new Map()
       const baseTextures = []
       const baseUrl = 'https://florafungus.s3.ap-southeast-1.amazonaws.com/spritesheets/'
@@ -161,6 +162,7 @@ export default {
         const baseTexture = await this.loadTexture(baseUrl + sprites.image);
         baseTextures.push(baseTexture)
         for(const spritedata of sprites.sprites){
+          this.spritesArr.push(spritedata)
           const texture = this.extractSpriteTexture(baseTexture, spritedata)
           textures.set(spritedata.name.replace( /^\D+/g, ''), texture)
         }
@@ -275,6 +277,7 @@ export default {
       if(this.tick > steps) {
         this.animating = false 
         ticker.stop()
+        this.scrollbox.update()
         return 
       }
 
@@ -288,41 +291,12 @@ export default {
         n.sprite.height -= n.heightIncAmt/steps
       })
     },
-    updateElements(){
-      this.animating = true
-      this.tick = 0
+    calculateNewAttrsThenMove(filteredNodes){
       let that = this
 
-      this.origNodesCopy = [...this.nodes]
-      let filteredNodes = [...this.nodes]
-      for (const item in this.selectedSubject) {
-        filteredNodes = this.selectedSubject[item] === 'All' ? filteredNodes : filteredNodes.filter(d=>d[item] === this.selectedSubject[item])
-      }
-    
-      if(this.selectedSort === 'votes'){
-        filteredNodes = filteredNodes.filter(d=>d.votes > 0)
-        filteredNodes.sort((a,b)=>{
-          return b[this.selectedSort]-a[this.selectedSort]
-        })
-      } else if(this.selectedSort === 'id'){
-        filteredNodes.sort((a,b)=>{
-          return a[this.selectedSort]-b[this.selectedSort]
-        })
-      } else {
-        if(this.selectedSort === 'background color' || this.selectedSort === 'element color'){
-          filteredNodes.sort((a,b)=>{
-            return this.colors.indexOf(a[this.selectedSort])-this.colors.indexOf(b[this.selectedSort])
-          })        
-        } else if(this.selectedSort === 'shape') {
-          filteredNodes.sort((a,b)=>{
-            return this.shapeType.indexOf(a['shapeType'])-this.shapeType.indexOf(b['shapeType'])
-          })               
-        }
-      }
-  
       const prevSimulatedFilteredNodes = this.simulatedFilteredNodes || []
       this.simulatedFilteredNodes = this.getElementPositions(filteredNodes) //run new simulation only on nodes with matching subject label
-  
+
       this.origNodesCopy.forEach(n=>{
         //calculate distance in each direction to move by
         let newCoords = this.simulatedFilteredNodes.find(d=>d.id === n.id) 
@@ -344,7 +318,53 @@ export default {
       T.add((delta) => that.animate(delta, T));
       T.start()
 
-      this.scrollbox.update()
+    },
+    updateElements(){
+      this.animating = true
+      this.tick = 0
+      let that = this
+
+      this.origNodesCopy = [...this.nodes]
+      let filteredNodes = [...this.nodes]
+      for (const item in this.selectedSubject) {
+        filteredNodes = this.selectedSubject[item] === 'All' ? filteredNodes : filteredNodes.filter(d=>d[item] === this.selectedSubject[item])
+      }
+      
+      if(this.selectedSort === 'votes'){
+        new Promise((resolve) => {
+          resolve('loading votes');
+        })
+        .then(async function(){
+          await that.getVotes(filteredNodes)
+        })
+        .then(function(){ 
+          filteredNodes = filteredNodes.filter(d=>d.votes > 0)
+          filteredNodes.sort((a,b)=>{
+            return b[that.selectedSort]-a[that.selectedSort]
+          })
+        })
+         .then(function(){ 
+          that.calculateNewAttrsThenMove(filteredNodes)
+        })
+
+      } else if(this.selectedSort === 'id'){
+        filteredNodes.sort((a,b)=>{
+          return a[this.selectedSort]-b[this.selectedSort]
+        })
+      } else {
+        if(this.selectedSort === 'background color' || this.selectedSort === 'element color'){
+          filteredNodes.sort((a,b)=>{
+            return this.colors.indexOf(a[this.selectedSort])-this.colors.indexOf(b[this.selectedSort])
+          })        
+        } else if(this.selectedSort === 'shape') {
+          filteredNodes.sort((a,b)=>{
+            return this.shapeType.indexOf(a['shapeType'])-this.shapeType.indexOf(b['shapeType'])
+          })               
+        }
+      }
+
+      if(this.selectedSort !== 'votes') this.calculateNewAttrsThenMove(filteredNodes)
+
     }
   },
   created() {

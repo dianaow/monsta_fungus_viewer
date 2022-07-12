@@ -175,6 +175,11 @@
 <script>
 export default {
   name: 'ControlPanel',
+  emits: [
+    "select-subject",
+    "select-sort",
+    "zoom-level"
+  ], 
   props: [
     "animating",
   ],
