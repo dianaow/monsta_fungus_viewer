@@ -40,8 +40,8 @@ export default {
       animating: false,
       timeout: false,
       isRendered: false, // flag to check if pixijs elements have all been rendered and visible on screen,
-      colors : ['All', '#F9AD6E', '#EE6D67', '#F74633', '#F4454F', '#3158D1', '#269574', '#2A7CA1', '#D2C4C2', '#ffffff', '#F8A621'],
-      shapeType: ['All', 'all_circles', 'all_hexagons', 'petal1', 'petal3', 'circles_squares', 'hexagons_circles'],
+      bgcolors: ['All', '#DFCEBE', '#F74633', '#F4454F', '#3158D1', '#2A7CA1', '#D2C4C2', '#F8A621', '#000000'],
+      shapeType: ['All', 'all_circles', 'all_hexagons', 'blob', 'petal2', 'mixed', 'hexagons_circles']
     };
   },
   computed: {
@@ -58,7 +58,6 @@ export default {
   methods: {
     setupData(response) {
       this.data = response
-      .slice(1)
       .map((d) => {
         return d;
       });
@@ -104,7 +103,7 @@ export default {
     handleImgClick(id) {
       if(this.animating) return
       let sprite = this.spritesArr.find(d=>d.name.includes(id))
-      window.open("https://florafungus.s3.ap-southeast-1.amazonaws.com/" + sprite.name + ".jpg");
+      window.open("https://florafungus.s3.ap-southeast-1.amazonaws.com/images/" + sprite.name + ".png");
     },
     async handleImgDblClick(id, sprite) {
       if(this.animating) return
@@ -155,7 +154,7 @@ export default {
       this.spritesArr = []
       const textures = new Map()
       const baseTextures = []
-      const baseUrl = 'https://florafungus.s3.ap-southeast-1.amazonaws.com/spritesheets/'
+      const baseUrl = 'https://florafungus.s3.ap-southeast-1.amazonaws.com/spritesheets_July22/'
       //const response = await fetch('./src/data/sprites/spritesheet.json')
       //const spritesheetJSON = await response.json()
       for(const sprites of spritesheetJSON.spritesheets){
@@ -164,7 +163,7 @@ export default {
         for(const spritedata of sprites.sprites){
           this.spritesArr.push(spritedata)
           const texture = this.extractSpriteTexture(baseTexture, spritedata)
-          textures.set(spritedata.name.replace( /^\D+/g, ''), texture)
+          textures.set(spritedata.name.replace( /^\D+/g, '').slice(5), texture)
         }
       }
       return textures
@@ -251,7 +250,7 @@ export default {
           return that.debugMode ? null : that.loadTextures() 
       })
       .then(async function(textures){
-        //console.log('creating sprites', textures)
+        //console.log('creating sprites', textures, that.nodes)
         that.nodes.forEach((nodeData) => {
           let texture = textures ? textures.get(nodeData.id.toString()) : PIXI.Texture.WHITE
           const sprite = that.makeSprite(texture, nodeData);
@@ -354,7 +353,7 @@ export default {
       } else {
         if(this.selectedSort === 'background color' || this.selectedSort === 'element color'){
           filteredNodes.sort((a,b)=>{
-            return this.colors.indexOf(a[this.selectedSort])-this.colors.indexOf(b[this.selectedSort])
+            return this.bgcolors.indexOf(a[this.selectedSort])-this.bgcolors.indexOf(b[this.selectedSort])
           })        
         } else if(this.selectedSort === 'shape') {
           filteredNodes.sort((a,b)=>{

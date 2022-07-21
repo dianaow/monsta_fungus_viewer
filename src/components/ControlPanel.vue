@@ -5,13 +5,13 @@
       <div class='btnGroup'>
         <p class='btnLabel'>BACKGROUND</p>
         <button
-          v-for="(item, index) in colors"
+          v-for="(item, index) in bgcolors"
           type="button"
           :class="[
             'btn-graph',
             selectedSubject['background color'] === item ? 'btn-graph-selected' : null
           ]"
-          :style="{'background-color':item}"
+          :style="{'background-color':item, 'color': item === '#000000' ? '#ffffff': null}"
           @click="setSelectedSubject('background color', item)"
           :key="index"
         >
@@ -185,11 +185,12 @@ export default {
   ],
   data() {
     return {
-      colors : ['All', '#F9AD6E', '#EE6D67', '#F74633', '#F4454F', '#3158D1', '#269574', '#2A7CA1', '#D2C4C2', '#ffffff', '#F8A621'],
-      shapeType: ['All', 'all_circles', 'all_hexagons', 'petal1', 'petal3', 'circles_squares', 'hexagons_circles'],
-      extraStyleType: ['All', 'gradient path', 'nested node color 2', 'node color 2'],
+      colors: ['All', '#F4E560', '#EE6D67', '#F74633', '#F4454F', '#3158D1', '#269574', '#2A7CA1', '#D2C4C2', '#ffffff', '#F8A621'],
+      bgcolors: ['All', '#DFCEBE', '#F74633', '#F4454F', '#3158D1', '#2A7CA1', '#D2C4C2', '#F8A621', '#000000'],
+      shapeType: ['All', 'all_circles', 'all_hexagons', 'blob', 'petal2', 'mixed', 'hexagons_circles'],
+      extraStyleType: ['All', 'gradient path', 'dbl node color 1', 'dbl node color 2'],
       fillType: ['All', 'all_filled', 'mixed', 'all_transparent'],
-      connectionType: ['All', 'barabasi_albert', 'low1', 'low2'],
+      connectionType: ['All', "1", "2", "3"],
       levels: ["All", 3, 4, 5, 6, 7, 8],
       sortCategories: ['id', 'background color', 'element color', 'shapeType', 'votes'],
       selectedSubject: {'background color': "All", 'element color': "All", 'link color': "All", 'shapeType': "All", 'levels': "All", "fillType": "All", "connectedness": "All", "extra style": "All"},
