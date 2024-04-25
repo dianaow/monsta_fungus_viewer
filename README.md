@@ -1,4 +1,10 @@
-# image-gallery
+# Interactive Digital Art Gallery
+
+A gallery of hundreds of images of my generative artworks to showcase their possible traits and structures. The web app, created with Vue.js and PIXI.js, has zoom, sort and filter features to aid exploration and observation. The images smoothly transition to their new positions upon interaction of the filter buttons at the top of the interface.
+
+- Live site: https://monsta-fungus-viewer.netlify.app/
+- Video: https://www.instagram.com/p/ChgnpX0sWC5/?utm_source=ig_web_copy_link
+
 
 ## Project setup
 ```
@@ -19,6 +25,3 @@ npm run build
 ```
 npm run lint
 ```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
