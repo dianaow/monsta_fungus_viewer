@@ -5,6 +5,11 @@ A gallery of hundreds of images of my generative artworks to showcase their poss
 - Live site: https://monsta-fungus-viewer.netlify.app/
 - Video: https://www.instagram.com/p/ChgnpX0sWC5/?utm_source=ig_web_copy_link
 
+<br>
+
+![Image of UI](https://github.com/dianaow/monsta_fungus_viewer/blob/main/ui_snapshot.png)
+
+<br>
 
 ## Project setup
 ```
